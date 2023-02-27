@@ -56,8 +56,8 @@ func CreateRelationship() {
 		//fSecond.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fFirst.Name))
 
 	case tmpNtO:
-		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fFirst.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
-		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fFirst.Name), fFirst.Name, strings.ToLower(fFirst.Name)))
+		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fSecond.Name), fFirst.Name, strings.ToLower(fFirst.Name)))
+		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fSecond.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
 
 		if !helper.CheckIfIsImported(fSecond.Content.Import, "java.util.Set") {
 			fSecond.Content.Import.WriteString("import java.util.Set;\n")
