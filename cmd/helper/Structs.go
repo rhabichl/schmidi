@@ -31,9 +31,14 @@ type FileContent struct {
 	Functions bytes.Buffer
 }
 
-func (f *FileContent) Bytes(name string) []byte {
+func (f *FileContent) BytesClass(name string) []byte {
 	//f.Variables.Write(f.Import.Bytes())
 	b := GenerateClass(f.Import, *bytes.NewBufferString(name), f.Variables)
+	return b.Bytes()
+}
+
+func (f *FileContent) BytesRepo(name string) []byte {
+	b := GenerateRepo(name)
 	return b.Bytes()
 }
 
@@ -43,13 +48,16 @@ type Fi struct {
 	Content FileContent
 }
 
+func (f *Fi) PathRepo() string {
+	return fmt.Sprintf("%s%crepository%c%sRepository.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, f.Name)
+}
+
 func (f *Fi) Path() string {
 	return fmt.Sprintf("%s%cmodel%c%s.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, f.Name)
 }
 
-func (f *Fi) Save() {
-
-	err := os.WriteFile(f.Path(), f.Content.Bytes(f.Name), 0644)
+func (f *Fi) Save(path string, body []byte) {
+	err := os.WriteFile(path, body, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -69,5 +77,19 @@ func GenerateClass(im, name, content bytes.Buffer) bytes.Buffer {
 	sb.WriteString(content.String())
 	// close the class
 	sb.WriteString("\n}")
+	return *bytes.NewBuffer([]byte(sb.String()))
+}
+
+func GenerateRepo(name string) bytes.Buffer {
+	var sb strings.Builder
+	// grow the stringbuilder once
+	// print the name of the package
+	sb.WriteString(fmt.Sprintf("package %s.repository;", packageName))
+	sb.WriteString("\n\nimport org.springframework.data.jpa.repository.JpaRepository;")
+	sb.WriteString("\n\nimport java.util.UUID;")
+	sb.WriteString(fmt.Sprintf("\n\nimport %s.model.%s;", packageName, name))
+	// write the imports
+	sb.WriteString(fmt.Sprintf("\n\npublic interface %sRepository extends JpaRepository<%s, UUID> {}", name, name))
+	// write content
 	return *bytes.NewBuffer([]byte(sb.String()))
 }
