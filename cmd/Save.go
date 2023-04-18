@@ -23,9 +23,10 @@ func Save() {
 	if result == "y" {
 		for _, v := range files {
 			v := helper.Fi{
-				Name: v.Name,
+				Name:   v.Name,
+				IdType: v.IdType,
 			}
-			v.Save(v.PathRepo(), v.Content.BytesRepo(v.Name))
+			v.Save(v.PathRepo(), v.Content.BytesRepo(v.Name, v.IdType))
 		}
 	}
 

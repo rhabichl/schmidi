@@ -37,14 +37,15 @@ func (f *FileContent) BytesClass(name string) []byte {
 	return b.Bytes()
 }
 
-func (f *FileContent) BytesRepo(name string) []byte {
-	b := GenerateRepo(name)
+func (f *FileContent) BytesRepo(name, idDataType string) []byte {
+	b := GenerateRepo(name, idDataType)
 	return b.Bytes()
 }
 
 // abstraction for file
 type Fi struct {
 	Name    string
+	IdType  string
 	Content FileContent
 }
 
@@ -80,7 +81,7 @@ func GenerateClass(im, name, content bytes.Buffer) bytes.Buffer {
 	return *bytes.NewBuffer([]byte(sb.String()))
 }
 
-func GenerateRepo(name string) bytes.Buffer {
+func GenerateRepo(name, idDataType string) bytes.Buffer {
 	var sb strings.Builder
 	// grow the stringbuilder once
 	// print the name of the package
@@ -89,7 +90,7 @@ func GenerateRepo(name string) bytes.Buffer {
 	sb.WriteString("\n\nimport java.util.UUID;")
 	sb.WriteString(fmt.Sprintf("\n\nimport %s.model.%s;", packageName, name))
 	// write the imports
-	sb.WriteString(fmt.Sprintf("\n\npublic interface %sRepository extends JpaRepository<%s, UUID> {}", name, name))
+	sb.WriteString(fmt.Sprintf("\n\npublic interface %sRepository extends JpaRepository<%s, %s> {}", name, name, idDataType))
 	// write content
 	return *bytes.NewBuffer([]byte(sb.String()))
 }

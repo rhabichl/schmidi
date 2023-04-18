@@ -69,7 +69,7 @@ func CreateRelationship() {
 		//fSecond.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fFirst.Name))
 
 	case tmpNtM:
-		name, im, va, fu := CreateClass()
+		name, im, va, fu, idDataType := CreateClass()
 		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fFirst.Name), name, strings.ToLower(name)))
 		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fSecond.Name), name, strings.ToLower(name)))
 
@@ -90,7 +90,8 @@ func CreateRelationship() {
 		va.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fSecond.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
 
 		files = append(files, &helper.Fi{
-			Name: name,
+			Name:   name,
+			IdType: idDataType,
 			Content: helper.FileContent{
 				Import:    im,
 				Variables: va,

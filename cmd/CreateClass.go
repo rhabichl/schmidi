@@ -13,7 +13,7 @@ var (
 	isImported = make(map[string]bool)
 )
 
-func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer) {
+func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer, string) {
 	tmpName := helper.PromptGetInput(helper.NewPromtContent("Name of the class", "enter a correct classname"))
 	// make every classname uppercase to make teacher happy
 
@@ -22,7 +22,7 @@ func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer) {
 	im.WriteString(helper.GetImport("Jpa"))
 	im.WriteString(helper.GetImport("lombok"))
 
-	tim, tva := getId()
+	tim, tva, idDataType := getId()
 	im.Write(tim.Bytes())
 	va.Write(tva.Bytes())
 	var finished = false
@@ -42,10 +42,10 @@ func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer) {
 			va.Write(tva.Bytes())
 		}
 	}
-	return strings.Title(tmpName), im, va, fu
+	return strings.Title(tmpName), im, va, fu, idDataType
 }
 
-func getId() (bytes.Buffer, bytes.Buffer) {
+func getId() (bytes.Buffer, bytes.Buffer, string) {
 	var im, va bytes.Buffer
 	va.WriteString("\t@Id\n")
 	ty := helper.PromptGetSelect(helper.NewPromtContent("Choose the datatype of the id", "please select one of the items"), []string{"Long", "String", "UUID"})
@@ -73,7 +73,7 @@ func getId() (bytes.Buffer, bytes.Buffer) {
 		va.WriteString("\t@Setter(AccessLevel.NONE)\n")
 		va.WriteString("\tprivate UUID id;\n\n")
 	}
-	return im, va
+	return im, va, ty
 }
 
 func askForVariable() (bytes.Buffer, bytes.Buffer) {

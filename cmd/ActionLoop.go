@@ -20,9 +20,10 @@ func ActionLoop() {
 		d := helper.GetActionPromt(h, []string{CREATE_CLASS, RELATIONSHIPS, SAVE})
 		switch d {
 		case CREATE_CLASS:
-			name, im, va, fu := CreateClass()
+			name, im, va, fu, idDataType := CreateClass()
 			files = append(files, &helper.Fi{
-				Name: name,
+				Name:   name,
+				IdType: idDataType,
 				Content: helper.FileContent{
 					Import:    im,
 					Variables: va,
