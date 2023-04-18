@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
@@ -13,18 +12,20 @@ var (
 	isImported = make(map[string]bool)
 )
 
-func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer, string) {
+func CreateClass() Class {
+	var c Class
+
 	tmpName := helper.PromptGetInput(helper.NewPromtContent("Name of the class", "enter a correct classname"))
 	// make every classname uppercase to make teacher happy
+	c.Name = strings.Title(tmpName)
+	c.PackageName = helper.GetPackageName(pom) + ".model"
+	c.Imports = append(c.Imports, Import{Name: helper.GetImport("Jpa")})
+	c.Imports = append(c.Imports, Import{Name: helper.GetImport("lombok")})
 
-	var im, va, fu bytes.Buffer
+	id, im := getId()
+	c.Imports = append(c.Imports, im...)
+	c.ID = id
 
-	im.WriteString(helper.GetImport("Jpa"))
-	im.WriteString(helper.GetImport("lombok"))
-
-	tim, tva, idDataType := getId()
-	im.Write(tim.Bytes())
-	va.Write(tva.Bytes())
 	var finished = false
 	for !finished {
 
@@ -37,76 +38,83 @@ func CreateClass() (string, bytes.Buffer, bytes.Buffer, bytes.Buffer, string) {
 		if result == "y" {
 			finished = false
 			// ceate new var
-			tim, tva := askForVariable()
-			im.Write(tim.Bytes())
-			va.Write(tva.Bytes())
+			va, im := askForVariable(c)
+			c.Variables = append(c.Variables, va)
+			c.Imports = append(c.Imports, im...)
 		}
 	}
-	return strings.Title(tmpName), im, va, fu, idDataType
+	return c
 }
 
-func getId() (bytes.Buffer, bytes.Buffer, string) {
-	var im, va bytes.Buffer
-	va.WriteString("\t@Id\n")
+func getId() (Variable, []Import) {
+	var v Variable
+	var i []Import
+
+	v.Annotaions = append(v.Annotaions, "@Id")
+	v.Name = "id"
+	v.Security = "private"
+
 	ty := helper.PromptGetSelect(helper.NewPromtContent("Choose the datatype of the id", "please select one of the items"), []string{"Long", "String", "UUID"})
 	switch ty {
 	case "Long":
-		va.WriteString("\t@GeneratedValue(strategy = GenerationType.IDENTITY)\n")
-		va.WriteString("\t@Setter(AccessLevel.NONE)\n")
-		va.WriteString("\tprivate Long id;\n\n")
+		v.DataType = "Long"
+		v.Annotaions = append(v.Annotaions, "@GeneratedValue(strategy = GenerationType.IDENTITY)")
+		v.Annotaions = append(v.Annotaions, "@Setter(AccessLevel.NONE)")
+
 	case "String":
-		va.WriteString("\t@GeneratedValue(strategy = GenerationType.IDENTITY)\n")
-		va.WriteString("\t@Setter(AccessLevel.NONE)\n")
-		va.WriteString("\tprivate String id;\n\n")
+		v.DataType = "String"
+		v.Annotaions = append(v.Annotaions, "@GeneratedValue(strategy = GenerationType.IDENTITY)")
+		v.Annotaions = append(v.Annotaions, "@Setter(AccessLevel.NONE)")
+
 	case "UUID":
-		im.WriteString(helper.GetImport("UUID"))
+
+		i = append(i, Import{Name: helper.GetImport("UUID")})
 		if helper.JavaVersion > 11 {
-			va.WriteString("\t@GeneratedValue(strategy = GenerationType.UUID)\n")
-			va.WriteString("\t@Column(name = \"id\", nullable = false)\n")
+			v.Annotaions = append(v.Annotaions, "@GeneratedValue(strategy = GenerationType.UUID)")
+			v.Annotaions = append(v.Annotaions, "@Column(name = \"id\", nullable = false)")
+
 		} else {
-			im.WriteString(helper.GetImport("GenericGenerator"))
-			va.WriteString("\t@GeneratedValue(generator = \"uuid2\")\n")
-			va.WriteString("\t@GenericGenerator(name = \"uuid2\", strategy = \"uuid2\")\n")
-			va.WriteString("\t@Column(name = \"id\", updatable = false, nullable = false, columnDefinition = \"VARCHAR(36)\")\n")
-			va.WriteString("\t@Type(type = \"uuid-char\")\n")
+			i = append(i, Import{Name: helper.GetImport("GenericGenerator")})
+
+			v.Annotaions = append(v.Annotaions, "@GeneratedValue(generator = \"uuid2\")")
+			v.Annotaions = append(v.Annotaions, "@GenericGenerator(name = \"uuid2\", strategy = \"uuid2\")")
+			v.Annotaions = append(v.Annotaions, "@Column(name = \"id\", updatable = false, nullable = false, columnDefinition = \"VARCHAR(36)\")")
+			v.Annotaions = append(v.Annotaions, "@Type(type = \"uuid-char\")")
 		}
-		va.WriteString("\t@Setter(AccessLevel.NONE)\n")
-		va.WriteString("\tprivate UUID id;\n\n")
+		v.Annotaions = append(v.Annotaions, "@Setter(AccessLevel.NONE)")
+		v.DataType = "UUID"
 	}
-	return im, va, ty
+	return v, i
 }
 
-func askForVariable() (bytes.Buffer, bytes.Buffer) {
-	var im, variables bytes.Buffer
-	variables.WriteString("\tprivate ")
+func askForVariable(c Class) (Variable, []Import) {
+	var v Variable
+	var i []Import
+	v.Security = "private"
 
 	t := helper.PromptGetSelect(helper.NewPromtContent("Type of class", "select a valid type"), []string{"String", "Integer", "Double", "Date", "Timestamp"})
 	switch t {
 	case "Date":
-		if _, ok := isImported["Date"]; !ok {
-			im.WriteString(helper.GetImport("Date"))
-			isImported["Date"] = true
+
+		if !c.isImported(helper.GetImport("Date")) {
+			i = append(i, Import{Name: helper.GetImport("Date")})
 		}
 
 	case "Timestamp":
-		if _, ok := isImported["Timestamp"]; !ok {
-			im.WriteString(helper.GetImport("Timestamp"))
-			isImported["Timestamp"] = true
+		if !c.isImported(helper.GetImport("Timestamp")) {
+			i = append(i, Import{Name: helper.GetImport("Timestamp")})
 		}
+
 	}
-	variables.WriteString(t + " ")
 
 	name := helper.PromptGetInput(helper.NewPromtContent("name:", "enter a valid name"))
 	// make sure the var is lower case
 	nameNew := strings.ToLower(string(name[0])) + name[1:]
-
-	variables.WriteString(nameNew + ";\n")
+	v.Name = nameNew
+	v.DataType = t
 	// add annotaion
-	var varPlusAnnotaion bytes.Buffer
-	varPlusAnnotaion.WriteString(fmt.Sprintf("\t@Column(name = \"%s\")\n", nameNew))
-	varPlusAnnotaion.WriteString("\t@NonNull\n")
-	varPlusAnnotaion.Write(variables.Bytes())
-	varPlusAnnotaion.WriteString("\n")
+	v.Annotaions = append(v.Annotaions, fmt.Sprintf("@Column(name = \"%s\")", nameNew))
+	v.Annotaions = append(v.Annotaions, "@NonNull")
 
-	return im, varPlusAnnotaion
+	return v, i
 }

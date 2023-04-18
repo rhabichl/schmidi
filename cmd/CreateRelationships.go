@@ -15,7 +15,7 @@ const (
 
 func CreateRelationship() {
 	var tmp []string
-	for _, v := range files {
+	for _, v := range classes {
 		tmp = append(tmp, v.Name)
 	}
 	if len(tmp) < 2 {
@@ -25,10 +25,10 @@ func CreateRelationship() {
 
 	second := helper.PromptGetSelect(helper.NewPromtContent("second classe for the relationship:", "choose on class"), helper.RemoveValue(tmp, first))
 
-	fFirst := helper.GetFileByName(files, first)
-	fSecond := helper.GetFileByName(files, second)
+	firstClass := classes[first]
+	secondClass := classes[second]
 
-	if fFirst == nil || fSecond == nil {
+	if firstClass == nil || secondClass == nil {
 		return
 	}
 
@@ -42,63 +42,96 @@ func CreateRelationship() {
 
 	switch r {
 	case tmpOtN:
-		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fFirst.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
-		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fFirst.Name), fFirst.Name, strings.ToLower(fFirst.Name)))
-
-		if !helper.CheckIfIsImported(fFirst.Content.Import, "java.util.Set") {
-			fFirst.Content.Import.WriteString("import java.util.Set;\n")
-		}
-		if !helper.CheckIfIsImported(fFirst.Content.Import, "com.fasterxml.jackson.annotation.JsonIgnore") {
-			fFirst.Content.Import.WriteString("import com.fasterxml.jackson.annotation.JsonIgnore;\n")
-		}
-
-		//fFirst.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fSecond.Name))
-		//fSecond.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fFirst.Name))
-
-	case tmpNtO:
-		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fSecond.Name), fFirst.Name, strings.ToLower(fFirst.Name)))
-		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fSecond.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
-
-		if !helper.CheckIfIsImported(fSecond.Content.Import, "java.util.Set") {
-			fSecond.Content.Import.WriteString("import java.util.Set;\n")
-		}
-		if !helper.CheckIfIsImported(fSecond.Content.Import, "com.fasterxml.jackson.annotation.JsonIgnore") {
-			fSecond.Content.Import.WriteString("import com.fasterxml.jackson.annotation.JsonIgnore;\n")
-		}
-		//fFirst.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fSecond.Name))
-		//fSecond.Content.Import.WriteString(fmt.Sprintf("import %s.model.%s;\n", packageName, fFirst.Name))
-
-	case tmpNtM:
-		name, im, va, fu, idDataType := CreateClass()
-		fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fFirst.Name), name, strings.ToLower(name)))
-		fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fSecond.Name), name, strings.ToLower(name)))
-
-		if !helper.CheckIfIsImported(fFirst.Content.Import, "java.util.Set") {
-			fFirst.Content.Import.WriteString("import java.util.Set;\n")
-		}
-		if !helper.CheckIfIsImported(fFirst.Content.Import, "com.fasterxml.jackson.annotation.JsonIgnore") {
-			fFirst.Content.Import.WriteString("import com.fasterxml.jackson.annotation.JsonIgnore;\n")
-		}
-		if !helper.CheckIfIsImported(fSecond.Content.Import, "java.util.Set") {
-			fSecond.Content.Import.WriteString("import java.util.Set;\n")
-		}
-		if !helper.CheckIfIsImported(fSecond.Content.Import, "com.fasterxml.jackson.annotation.JsonIgnore") {
-			fSecond.Content.Import.WriteString("import com.fasterxml.jackson.annotation.JsonIgnore;\n")
-		}
-
-		va.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fFirst.Name), fFirst.Name, strings.ToLower(fFirst.Name)))
-		va.WriteString(fmt.Sprintf("\t@ManyToOne(fetch = FetchType.LAZY)\n\t@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(fSecond.Name), fSecond.Name, strings.ToLower(fSecond.Name)))
-
-		files = append(files, &helper.Fi{
-			Name:   name,
-			IdType: idDataType,
-			Content: helper.FileContent{
-				Import:    im,
-				Variables: va,
-				Functions: fu,
-			},
+		firstClass.Variables = append(firstClass.Variables, Variable{
+			Annotaions: []string{"@JsonIgnore", fmt.Sprintf("@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)", strings.ToLower(firstClass.Name))},
+			Security:   "private",
+			DataType:   fmt.Sprintf("Set<%s>", secondClass.Name),
+			Name:       strings.ToLower(secondClass.Name),
 		})
 
+		secondClass.Variables = append(secondClass.Variables, Variable{
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(firstClass.Name))},
+			Security:   "private",
+			DataType:   firstClass.Name,
+			Name:       strings.ToLower(firstClass.Name),
+		})
+
+		if !firstClass.isImported("java.util.Set") {
+			firstClass.Imports = append(firstClass.Imports, Import{Name: "java.util.Set"})
+		}
+		if !firstClass.isImported("com.fasterxml.jackson.annotation.JsonIgnore") {
+			firstClass.Imports = append(firstClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
+		}
+
+	case tmpNtO:
+
+		secondClass.Variables = append(secondClass.Variables, Variable{
+			Annotaions: []string{"@JsonIgnore", fmt.Sprintf("@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)", strings.ToLower(secondClass.Name))},
+			Security:   "private",
+			DataType:   fmt.Sprintf("Set<%s>", firstClass.Name),
+			Name:       strings.ToLower(firstClass.Name),
+		})
+
+		firstClass.Variables = append(firstClass.Variables, Variable{
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(secondClass.Name))},
+			Security:   "private",
+			DataType:   secondClass.Name,
+			Name:       strings.ToLower(secondClass.Name),
+		})
+
+		if !secondClass.isImported("java.util.Set") {
+			secondClass.Imports = append(secondClass.Imports, Import{Name: "java.util.Set"})
+		}
+		if !secondClass.isImported("com.fasterxml.jackson.annotation.JsonIgnore") {
+			secondClass.Imports = append(secondClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
+		}
+
+	case tmpNtM:
+		c := CreateClass()
+		//fFirst.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fFirst.Name), name, strings.ToLower(name)))
+		firstClass.Variables = append(firstClass.Variables, Variable{
+			Annotaions: []string{"@JsonIgnore", fmt.Sprintf("@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)", strings.ToLower(firstClass.Name))},
+			Security:   "private",
+			DataType:   fmt.Sprintf("Set<%s>", c.Name),
+			Name:       strings.ToLower(c.Name),
+		})
+
+		//fSecond.Content.Variables.WriteString(fmt.Sprintf("\t@JsonIgnore\n\t@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)\n\tprivate Set<%s> %s;\n\n", strings.ToLower(fSecond.Name), name, strings.ToLower(name)))
+		secondClass.Variables = append(secondClass.Variables, Variable{
+			Annotaions: []string{"@JsonIgnore", fmt.Sprintf("@OneToMany(mappedBy = \"%s\", fetch = FetchType.LAZY)", strings.ToLower(secondClass.Name))},
+			Security:   "private",
+			DataType:   fmt.Sprintf("Set<%s>", c.Name),
+			Name:       strings.ToLower(c.Name),
+		})
+
+		if !firstClass.isImported("java.util.Set") {
+			firstClass.Imports = append(firstClass.Imports, Import{Name: "java.util.Set"})
+		}
+		if !firstClass.isImported("com.fasterxml.jackson.annotation.JsonIgnore") {
+			firstClass.Imports = append(firstClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
+		}
+		if !secondClass.isImported("java.util.Set") {
+			secondClass.Imports = append(secondClass.Imports, Import{Name: "java.util.Set"})
+		}
+		if !secondClass.isImported("com.fasterxml.jackson.annotation.JsonIgnore") {
+			secondClass.Imports = append(secondClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
+		}
+
+		c.Variables = append(c.Variables, Variable{
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")", strings.ToLower(firstClass.Name))},
+			Security:   "private",
+			DataType:   firstClass.Name,
+			Name:       strings.ToLower(firstClass.Name),
+		})
+
+		c.Variables = append(c.Variables, Variable{
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")", strings.ToLower(secondClass.Name))},
+			Security:   "private",
+			DataType:   secondClass.Name,
+			Name:       strings.ToLower(secondClass.Name),
+		})
+
+		classes[c.Name] = &c
 	}
 
 }

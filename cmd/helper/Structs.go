@@ -50,12 +50,12 @@ type Fi struct {
 	Content FileContent
 }
 
-func (f *Fi) PathRepo() string {
-	return fmt.Sprintf("%s%crepository%c%sRepository.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, f.Name)
+func PathRepo(name string) string {
+	return fmt.Sprintf("%s%crepository%c%sRepository.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
 }
 
-func (f *Fi) Path() string {
-	return fmt.Sprintf("%s%cmodel%c%s.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, f.Name)
+func PathModel(name string) string {
+	return fmt.Sprintf("%s%cmodel%c%s.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
 }
 
 func (f *Fi) Save(p string, body []byte) {
@@ -94,7 +94,7 @@ func GenerateRepo(name, idDataType string) bytes.Buffer {
 	// print the name of the package
 	sb.WriteString(fmt.Sprintf("package %s.repository;", packageName))
 	sb.WriteString("\n\nimport org.springframework.data.jpa.repository.JpaRepository;")
-	sb.WriteString("\n\nimport java.util.UUID;")
+	sb.WriteString("\nimport java.util.UUID;")
 	sb.WriteString(fmt.Sprintf("\n\nimport %s.model.%s;", packageName, name))
 	// write the imports
 	sb.WriteString(fmt.Sprintf("\n\npublic interface %sRepository extends JpaRepository<%s, %s> {}", name, name, idDataType))

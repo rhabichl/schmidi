@@ -28,7 +28,7 @@ func GetImport(input string) string {
 		result = "lombok.*"
 	}
 
-	return "import " + result + ";\n"
+	return result
 }
 
 func CheckIfIsImported(b bytes.Buffer, imp string) bool {
