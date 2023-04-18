@@ -17,6 +17,7 @@ To use the tool simply execute the model subcommand like this:
 ```
 
 ## TODO
-* fix bugs and test more on windows 
-* add CRUD REST-API handler for all entities
-* use other datatypes for repositories
+- [ ] fix bugs and test more on windows 
+- [ ] add CRUD REST-API handler for all entities
+- [X] use other datatypes for repositories
+- [ ] create the folder before saving the files
