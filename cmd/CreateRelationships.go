@@ -50,7 +50,7 @@ func CreateRelationship() {
 		})
 
 		secondClass.Variables = append(secondClass.Variables, Variable{
-			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(firstClass.Name))},
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")", strings.ToLower(firstClass.Name))},
 			Security:   "private",
 			DataType:   firstClass.Name,
 			Name:       strings.ToLower(firstClass.Name),
@@ -73,7 +73,7 @@ func CreateRelationship() {
 		})
 
 		firstClass.Variables = append(firstClass.Variables, Variable{
-			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")\n\tprivate %s %s;\n\n", strings.ToLower(secondClass.Name))},
+			Annotaions: []string{"@ManyToOne(fetch = FetchType.LAZY)", fmt.Sprintf("@JoinColumn(name = \"%s_id\")", strings.ToLower(secondClass.Name))},
 			Security:   "private",
 			DataType:   secondClass.Name,
 			Name:       strings.ToLower(secondClass.Name),
