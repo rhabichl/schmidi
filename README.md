@@ -19,4 +19,4 @@ To use the tool simply execute the model subcommand like this:
 ## TODO
 * fix bugs and test more on windows 
 * add CRUD REST-API handler for all entities
-* use repositories 
+* use other datatypes for repositories
