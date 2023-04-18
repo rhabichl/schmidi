@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -57,8 +58,14 @@ func (f *Fi) Path() string {
 	return fmt.Sprintf("%s%cmodel%c%s.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, f.Name)
 }
 
-func (f *Fi) Save(path string, body []byte) {
-	err := os.WriteFile(path, body, 0644)
+func (f *Fi) Save(p string, body []byte) {
+
+	err := os.Mkdir(filepath.Dir(p), 0777)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = os.WriteFile(p, body, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
