@@ -1,10 +1,5 @@
 package helper
 
-import (
-	"bytes"
-	"strings"
-)
-
 var JavaVersion = 0
 
 func GetImport(input string) string {
@@ -29,8 +24,4 @@ func GetImport(input string) string {
 	}
 
 	return result
-}
-
-func CheckIfIsImported(b bytes.Buffer, imp string) bool {
-	return strings.Contains(b.String(), imp)
 }

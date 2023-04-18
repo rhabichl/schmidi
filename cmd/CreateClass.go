@@ -8,17 +8,13 @@ import (
 	"github.com/rhabichl/schmidi/cmd/helper"
 )
 
-var (
-	isImported = make(map[string]bool)
-)
-
 func CreateClass() Class {
 	var c Class
 
 	tmpName := helper.PromptGetInput(helper.NewPromtContent("Name of the class", "enter a correct classname"))
 	// make every classname uppercase to make teacher happy
 	c.Name = strings.Title(tmpName)
-	c.PackageName = helper.GetPackageName(pom) + ".model"
+	c.PackageName = packageName + ".model"
 	c.Imports = append(c.Imports, Import{Name: helper.GetImport("Jpa")})
 	c.Imports = append(c.Imports, Import{Name: helper.GetImport("lombok")})
 

@@ -9,10 +9,6 @@ import (
 	"github.com/rhabichl/schmidi/cmd/helper"
 )
 
-var (
-	files []*helper.Fi
-)
-
 func Save() {
 
 	prompt := promptui.Prompt{
