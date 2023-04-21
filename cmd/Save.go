@@ -12,7 +12,7 @@ import (
 func Save() {
 
 	prompt := promptui.Prompt{
-		Label:     "Make repositories for the classes (only supports UUID at the time)",
+		Label:     "Make repositories for the classes",
 		IsConfirm: true,
 	}
 	result, _ := prompt.Run()
@@ -21,14 +21,12 @@ func Save() {
 		for _, v := range classes {
 			b := helper.GenerateRepo(v.Name, v.ID.DataType)
 			writeFile(helper.PathRepo(v.Name), b.Bytes())
-
 		}
 	}
 
 	for _, v := range classes {
 		b, _ := v.Get()
 		writeFile(helper.PathModel(v.Name), []byte(b))
-
 	}
 
 	fmt.Println("Make sure you have lombok as a dependency")
