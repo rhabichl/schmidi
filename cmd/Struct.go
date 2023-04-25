@@ -80,6 +80,18 @@ func (c *Class) Get() (string, error) {
 	return sb.String(), nil
 }
 
+func (c *Class) isNonNullVarPresent() bool {
+	for _, variable := range c.Variables {
+		for _, annotation := range variable.Annotaions {
+			if annotation == "@NonNull" {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 type Printable interface {
 	Get() (string, error)
 }

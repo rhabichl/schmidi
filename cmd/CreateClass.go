@@ -39,6 +39,11 @@ func CreateClass() Class {
 			c.Imports = append(c.Imports, im...)
 		}
 	}
+	c.Annotaions = append(c.Annotaions, []string{"@Entity", "@Getter", "@Setter", "@NoArgsConstructor"}...)
+	if c.isNonNullVarPresent() {
+		c.Annotaions = append(c.Annotaions, "@RequiredArgsConstructor")
+	}
+
 	return c
 }
 
