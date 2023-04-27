@@ -63,6 +63,8 @@ func CreateRelationship() {
 			firstClass.Imports = append(firstClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
 		}
 
+		secondClass.hasOne = append(secondClass.hasOne, firstClass)
+
 	case tmpNtO:
 
 		secondClass.Variables = append(secondClass.Variables, Variable{
@@ -85,6 +87,8 @@ func CreateRelationship() {
 		if !secondClass.isImported("com.fasterxml.jackson.annotation.JsonIgnore") {
 			secondClass.Imports = append(secondClass.Imports, Import{Name: "com.fasterxml.jackson.annotation.JsonIgnore"})
 		}
+
+		firstClass.hasOne = append(firstClass.hasOne, secondClass)
 
 	case tmpNtM:
 		c := CreateClass()
@@ -130,6 +134,9 @@ func CreateRelationship() {
 			DataType:   secondClass.Name,
 			Name:       strings.ToLower(secondClass.Name),
 		})
+
+		c.hasOne = append(c.hasOne, firstClass)
+		c.hasOne = append(c.hasOne, secondClass)
 
 		classes[c.Name] = &c
 	}

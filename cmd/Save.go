@@ -12,7 +12,7 @@ import (
 func Save() {
 
 	prompt := promptui.Prompt{
-		Label:     "Make repositories for the classes",
+		Label:     "Make repositories for the entities",
 		IsConfirm: true,
 	}
 	result, _ := prompt.Run()
@@ -21,6 +21,25 @@ func Save() {
 		for _, v := range classes {
 			b := helper.GenerateRepo(v.Name, v.ID.DataType)
 			writeFile(helper.PathRepo(v.Name), b.Bytes())
+		}
+	}
+
+	prompt2 := promptui.Prompt{
+		Label:     "Make web-controller for the entities",
+		IsConfirm: true,
+	}
+	result2, _ := prompt2.Run()
+
+	if result2 == "y" {
+		for _, v := range classes {
+			cont, dto := CreateWebController(v)
+			if dto.Name != "" {
+				bDto, _ := dto.Get()
+				writeFile(helper.PathDTO(v.Name), []byte(bDto))
+			}
+
+			b, _ := cont.Get()
+			writeFile(helper.PathController(v.Name), []byte(b))
 		}
 	}
 

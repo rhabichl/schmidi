@@ -29,8 +29,16 @@ func PathRepo(name string) string {
 	return fmt.Sprintf("%s%crepository%c%sRepository.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
 }
 
+func PathController(name string) string {
+	return fmt.Sprintf("%s%ccontroller%c%sRestController.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
+}
+
 func PathModel(name string) string {
 	return fmt.Sprintf("%s%cmodel%c%s.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
+}
+
+func PathDTO(name string) string {
+	return fmt.Sprintf("%s%cDTO%c%sDTO.java", GetPathForSaving(pom, path), os.PathSeparator, os.PathSeparator, name)
 }
 
 func GenerateRepo(name, idDataType string) bytes.Buffer {
