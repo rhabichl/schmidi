@@ -21,3 +21,6 @@ To use the tool simply execute the model subcommand like this:
 - [ ] add CRUD REST-API handler for all entities
 - [X] use other datatypes for repositories
 - [X] create the folder before saving the files
+
+Automatic tests with this tutorial:
+https://octopus.com/blog/githubactions-running-unit-tests
