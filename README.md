@@ -22,5 +22,14 @@ To use the tool simply execute the model subcommand like this:
 - [X] use other datatypes for repositories
 - [X] create the folder before saving the files
 
-Automatic tests with this tutorial:
+Automatic CICD tests with this tutorial:
 https://octopus.com/blog/githubactions-running-unit-tests
+
+
+Add tests for Java Spring with this tutorial:
+
+
+https://techwithmaddy.com/testing-with-spring-boot#heading-testing-the-rest-controller
+
+
+https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/test-mockmvc.html
